@@ -45,4 +45,5 @@ jobs:
             git pull origin main
             pnpm install
             npx prisma generate
+            pnpm run build
             pm2 restart ecosystem.config.js
