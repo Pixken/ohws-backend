@@ -8,7 +8,8 @@ module.exports = {
       exec_mode: "cluster",       // 集群模式
       env: {
         NODE_ENV: "production",
-        DATABASE_URL: "mysql://zxdbf:20011113XSZxsz.@localhost:6480/ohws"
+        DATABASE_URL: "mysql://zxdbf:20011113XSZxsz.@localhost:6480/ohws",
+        JWT_SECRET: "zxdbf666",
       }
     }
   ]
