@@ -4,13 +4,14 @@ import { UserModule } from './modules/user/user.module';
 import { CashModule } from './modules/cash/cash.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { AccountModule } from './modules/account/account.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    PrismaModule, UserModule, CashModule, AuthModule
+    PrismaModule, UserModule, CashModule, AuthModule, AccountModule
   ],
 })
 export class AppModule { }
