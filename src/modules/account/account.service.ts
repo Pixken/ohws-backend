@@ -31,8 +31,11 @@ export class AccountService {
     })
   }
 
-  async findAccounts(id: string) {
-    return this.prisma.account.findMany({ where: { id } });
+  async findAccounts(userId: string) {
+    return this.prisma.account.findMany({
+      where: { users: { some: { id: userId } } },
+      include: { users: true },
+    });
   }
 }
 

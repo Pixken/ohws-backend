@@ -15,8 +15,8 @@ export class AccountController {
     return this.accountService.addAccount(id, data);
   }
 
-  @Get(':id')
-  findAccounts(@Param('id') id: string) {
-    return this.accountService.findAccounts(id);
+  @Get(':userId')
+  findAccounts(@Param('userId') userId: string) {
+    return this.accountService.findAccounts(userId);
   }
 }
