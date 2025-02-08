@@ -1,0 +1,45 @@
+name: Deploy to Cloud Server
+
+on:
+  push:
+    branches:
+      - main  # 只在 main 分支推送时触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # 根据你的项目需求选择合适的 Node.js 版本
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build the project
+      run: npm run build
+
+    - name: Install Prisma CLI
+      run: npm install -g prisma
+
+    - name: Generate Prisma Client
+      run: npx prisma generate
+
+    - name: Deploy to Cloud Server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /path/to/your/project
+          git pull origin main
+          npm install
+          npx prisma migrate deploy
+          npm run build
+          pm2 restart your-app-name  # 如果你使用 PM2 管理进程
