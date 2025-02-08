@@ -40,6 +40,6 @@ jobs:
           cd /path/to/project
           git pull origin main
           pnpm install
-          pnpm prisma migrate deploy
+          pnpm prisma generate
           pnpm run build
           pm2 restart ecosystem.config.js
