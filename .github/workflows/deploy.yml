@@ -30,6 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            rm -rf /path/to/project/*
             cd /path/to/project
             npm install -g pnpm
             pnpm install
