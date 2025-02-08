@@ -24,14 +24,11 @@ jobs:
     - name: Install dependencies
       run: pnpm install
 
-    - name: Build the project
-      run: pnpm run build
-
-    - name: Install Prisma CLI
-      run: pnpm install -g prisma
-
     - name: Generate Prisma Client
       run: pnpm prisma generate
+
+    - name: Build the project
+      run: pnpm run build
 
     - name: Deploy to Cloud Server
       uses: appleboy/ssh-action@v0.1.7
