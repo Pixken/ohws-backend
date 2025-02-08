@@ -16,19 +16,22 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'  # 根据你的项目需求选择合适的 Node.js 版本
+        node-version: '20'  # 根据你的项目需求选择合适的 Node.js 版本
+
+    - name: Install pnpm
+      run: npm install -g pnpm
 
     - name: Install dependencies
-      run: npm install
+      run: pnpm install
 
     - name: Build the project
-      run: npm run build
+      run: pnpm run build
 
     - name: Install Prisma CLI
-      run: npm install -g prisma
+      run: pnpm install -g prisma
 
     - name: Generate Prisma Client
-      run: npx prisma generate
+      run: pnpm prisma generate
 
     - name: Deploy to Cloud Server
       uses: appleboy/ssh-action@v0.1.7
@@ -37,9 +40,9 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /path/to/your/project
+          cd /path/to/project
           git pull origin main
-          npm install
-          npx prisma migrate deploy
-          npm run build
-          pm2 restart your-app-name  # 如果你使用 PM2 管理进程
+          pnpm install
+          pnpm prisma migrate deploy
+          pnpm run build
+          pm2 restart ecosystem.config.js
