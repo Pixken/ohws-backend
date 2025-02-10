@@ -5,16 +5,16 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AccountService {
   constructor(private prisma: PrismaService) {}
 
-  async addAccount(userId: string, accountId: string) {
+  async addAccount(userId: string, data: any) {
     const account = await this.prisma.account.findUnique({
-      where: { id: accountId },
+      where: { id: data.key },
     });
     if (!account) {
       throw new Error('Account not found');
     }
     return this.prisma.user.update({
       where: { id: userId },
-      data: { accounts: { connect: { id: accountId } } },
+      data: { accounts: { connect: { id: data.key } } },
       include: { accounts: true },
     });
   }

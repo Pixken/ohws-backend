@@ -14,6 +14,16 @@ export class CashController {
     return this.cashService.create(createCashDto);
   }
 
+  @Get('find-all-by-user/:id')
+  findAllByUser(@Param('id') id: string) {
+    return this.cashService.findAllByUser(id);
+  }
+
+  @Get('find-all-by-account/:id')
+  findAllByAccount(@Param('id') id: string) {
+    return this.cashService.findAllByAccount(id);
+  }
+
   @Get()
   findAll() {
     return this.cashService.findAll();

@@ -1,47 +1,48 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id    String     @id @default(uuid())
-  name  String?
-  email String  @unique
-  password  String
-  cash  Cash[]
-  accounts Account[]
+  id       String    @id @default(uuid())
+  name     String?
+  email    String    @unique
+  password String
+  cash     Cash[]
+  accounts Account[] @relation("AccountToUser")
 }
 
 model Account {
-  id    String     @id @default(uuid())
-  balance Float   @default(0)
-  name  String
-  users User[]
+  id      String @id @default(uuid())
+  balance Float  @default(0)
+  name    String
+  cash    Cash[]
+  users   User[] @relation("AccountToUser")
 }
 
 model Cash {
-  id    String     @id @default(uuid())
-  description  String
-  price Float
-  type  String
-  user  User?   @relation(fields: [userId], references: [id])
-  userId String?
-  categoryId String?
-  category CashCategory? @relation(fields: [categoryId], references: [id])
+  id          String        @id @default(uuid())
+  price       Float
+  type        String
+  userId      String?
+  categoryId  String?
+  description String
+  accountId   String?
+  account     Account?      @relation(fields: [accountId], references: [id])
+  category    CashCategory? @relation(fields: [categoryId], references: [id])
+  user        User?         @relation(fields: [userId], references: [id])
+
+  @@index([accountId], map: "Cash_accountId_fkey")
+  @@index([categoryId], map: "Cash_categoryId_fkey")
+  @@index([userId], map: "Cash_userId_fkey")
 }
 
 model CashCategory {
-  id    String     @id @default(uuid())
-  name  String
-  cash  Cash[]
+  id   String @id @default(uuid())
+  name String
+  cash Cash[]
 }
