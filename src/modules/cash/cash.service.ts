@@ -10,11 +10,12 @@ export class CashService {
 
   async create(createCashDto: CreateCashDto) {
     const price = createCashDto.cash.price;
+    const type = createCashDto.cash.type;
     const account = await this.prisma.account.findUnique({ where: { id: createCashDto.accountId } });
     if (!account) {
       throw new NotFoundException('Account not found');
     }
-    const newBalance = account.balance + price;
+    const newBalance = type === 'income' ? account.balance + price : account.balance - price;
     await this.prisma.account.update({ where: { id: createCashDto.accountId }, data: { balance: newBalance } });
     return await this.prisma.cash.create({ data: createCashDto.cash });
   }

@@ -28,6 +28,7 @@ model Cash {
   id          String        @id @default(uuid())
   price       Float
   type        String
+  date        DateTime      @default(now())
   userId      String?
   categoryId  String?
   description String
