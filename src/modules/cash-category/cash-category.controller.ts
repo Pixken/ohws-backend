@@ -1,11 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CashCategoryService } from './cash-category.service';
 import { CreateCashCategoryDto } from './dto/create-cash-category.dto';
 import { UpdateCashCategoryDto } from './dto/update-cash-category.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('cash-category')
-@UseGuards(JwtAuthGuard)
 export class CashCategoryController {
   constructor(private readonly cashCategoryService: CashCategoryService) {}
 

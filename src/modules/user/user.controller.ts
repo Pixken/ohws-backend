@@ -1,10 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from 'src/common/decorator/custom.decorator';
 
 @Controller('user')
-@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -14,6 +13,7 @@ export class UserController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.userService.findUsers();
   }

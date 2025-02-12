@@ -2,10 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { CashService } from './cash.service';
 import { CreateCashDto } from './dto/create-cash.dto';
 import { UpdateCashDto } from './dto/update-cash.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('cash')
-@UseGuards(JwtAuthGuard)
 export class CashController {
   constructor(private readonly cashService: CashService) {}
 
