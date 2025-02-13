@@ -18,8 +18,7 @@ export class AuthController {
   @Post('refresh')
   @Public()
   @HttpCode(200)
-  async refreshToken(@Body('refresh_token') refreshToken: string): Promise<LoginResponse> {
-    console.log('refreshToken', refreshToken);
+  async refreshToken(@Body('refreshToken') refreshToken: string): Promise<LoginResponse> {
     return this.authService.refreshToken(refreshToken);
   }
 
