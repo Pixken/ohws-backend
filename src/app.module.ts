@@ -8,6 +8,7 @@ import { AccountModule } from './modules/account/account.module';
 import { CashCategoryModule } from './modules/cash-category/cash-category.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/auth.guard';
+import { TerminalGateway } from './modules/terminal/terminal.gateway';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from './modules/auth/auth.guard';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    TerminalGateway,
   ],
 })
 export class AppModule { }
