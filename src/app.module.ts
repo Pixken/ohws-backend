@@ -8,8 +8,8 @@ import { AccountModule } from './modules/account/account.module';
 import { CashCategoryModule } from './modules/cash-category/cash-category.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/auth.guard';
-import { TerminalGateway } from './modules/terminal/terminal.gateway';
-
+import { SshGateway } from './modules/terminal/terminal.gateway';
+import { SshService } from './modules/terminal/terminal.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,7 +22,8 @@ import { TerminalGateway } from './modules/terminal/terminal.gateway';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    TerminalGateway,
+    SshGateway,
+    SshService,
   ],
 })
 export class AppModule { }

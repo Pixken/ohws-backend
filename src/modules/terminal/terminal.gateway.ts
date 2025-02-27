@@ -1,90 +1,53 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import * as ssh2 from 'ssh2';
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  ConnectedSocket,
+  MessageBody,
+} from '@nestjs/websockets';
+import { SshService } from './terminal.service';
+import { Logger } from '@nestjs/common';
+
+interface ConnectDto {
+  host: string;
+  username: string;
+  password: string;
+}
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
-export class TerminalGateway {
+export class SshGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger(SshGateway.name);
+  private connections = new Map<string, any>();
+
+  constructor(private readonly sshService: SshService) {}
+
   @WebSocketServer()
-  server: Server;
+  server: any;
 
-  private connections: Map<string, ssh2.Client> = new Map();
-
-  @SubscribeMessage('terminal:connect')
-  async handleConnection(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { host: string; port: number; username: string; password: string }
-  ) {
-    console.log('handleConnection', data);
-    const sshClient = new ssh2.Client();
-
-    try {
-      await new Promise((resolve, reject) => {
-        sshClient
-          .on('ready', () => {
-            sshClient.shell({ term: 'xterm-color' }, (err, stream) => {
-              if (err) reject(err);
-
-              stream.on('data', (data: Buffer) => {
-                client.emit('terminal:output', { data: data.toString('utf-8') });
-              });
-
-              stream.on('close', () => {
-                client.emit('terminal:close');
-                this.connections.delete(client.id);
-                sshClient.end();
-              });
-
-              this.connections.set(client.id, sshClient);
-              resolve(stream);
-            });
-          })
-          .on('error', (err) => {
-            reject(err);
-          })
-          .connect({
-            host: data.host,
-            port: data.port,
-            username: data.username,
-            password: data.password
-          });
-      });
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  handleConnection(client: any) {
+    this.logger.log(`Client connected: ${client.id}`);
   }
 
-  @SubscribeMessage('terminal:input')
-  handleInput(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { input: string }
-  ) {
-    console.log('handleInput', data);
-    const sshClient = this.connections.get(client.id);
-    if (sshClient) {
-      sshClient.exec(data.input, (err, stream) => {
-        if (err) {
-          client.emit('terminal:error', { error: err.message });
-          return;
-        }
-
-        stream.on('data', (data: Buffer) => {
-          client.emit('terminal:output', { data: data.toString('utf-8') });
-        });
-      });
-    }
-  }
-
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: any) {
+    this.logger.log(`Client disconnected: ${client.id}`);
     const sshClient = this.connections.get(client.id);
     if (sshClient) {
       sshClient.end();
       this.connections.delete(client.id);
     }
+  }
+
+  @SubscribeMessage('terminal:connect')
+  handleSshConnection(@MessageBody() payload: ConnectDto, @ConnectedSocket() client: any) {
+    console.log('payload', payload, client);
+    const sshClient = this.sshService.createConnection(payload, client);
+    this.connections.set(client.id, sshClient);
+    return { success: true };
   }
 }

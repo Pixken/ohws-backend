@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { TerminalGateway } from './terminal.gateway';
-
+import { SshGateway } from './terminal.gateway';
+import { SshService } from './terminal.service';
 @Module({
-  providers: [TerminalGateway],
+  providers: [SshGateway, SshService],
 })
 export class TerminalModule {}
