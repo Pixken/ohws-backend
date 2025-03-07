@@ -10,12 +10,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/auth.guard';
 import { SshGateway } from './modules/terminal/terminal.gateway';
 import { SshService } from './modules/terminal/terminal.service';
+import { NotesModule } from './modules/notes/notes.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    PrismaModule, UserModule, CashModule, AuthModule, AccountModule, CashCategoryModule
+    PrismaModule, UserModule, CashModule, AuthModule, AccountModule, CashCategoryModule, NotesModule
   ],
   providers: [
     {
