@@ -14,7 +14,6 @@ model User {
   password String
   cash     Cash[]
   accounts Account[] @relation("AccountToUser")
-  notes Notes[]
 }
 
 model Account {
@@ -46,38 +45,6 @@ model Cash {
 model CashCategory {
   id   String @id @default(uuid())
   name String
+  type String
   cash Cash[]
-}
-
-model Notes {
-  id String @id @default(uuid())
-  title String
-  content String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  categoryId String
-  category NotesCategory @relation(fields: [categoryId], references: [id])
-  tags NotesTag[]
-  attachments NotesAttachment[]
-  userId String
-  user User @relation(fields: [userId], references: [id])
-}
-
-model NotesCategory {
-  id String @id @default(uuid())
-  name String
-  notes Notes[]
-}
-
-model NotesTag {
-  id String @id @default(uuid())
-  name String
-  notes Notes[]
-}
-
-model NotesAttachment {
-  id String @id @default(uuid())
-  url String
-  notes Notes @relation(fields: [notesId], references: [id])
-  notesId String
 }

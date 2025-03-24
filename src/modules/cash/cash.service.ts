@@ -28,6 +28,22 @@ export class CashService {
     return await this.prisma.cash.findMany({ where: { accountId } });
   }
 
+  async findAllByTime(userId: string, time: string) {
+    return await this.prisma.cash.findMany({
+      where: {
+        userId,
+        date: {
+          gte: new Date(time.split('到')[0]),
+          lte: new Date(time.split('到')[1]),
+        },
+      },
+      include: {
+        category: true,
+        account: true,
+      },
+    });
+  }
+
   findAll() {
     return `This action returns all cash`;
   }

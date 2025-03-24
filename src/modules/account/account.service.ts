@@ -37,5 +37,9 @@ export class AccountService {
       include: { users: true },
     });
   }
+
+  async findOne(id: string) {
+    return this.prisma.account.findUnique({ where: { id } });
+  }
 }
 

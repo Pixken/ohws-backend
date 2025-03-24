@@ -19,7 +19,7 @@ export class CashCategoryController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.cashCategoryService.findOne(+id);
+    return this.cashCategoryService.findOne(id);
   }
 
   @Patch(':id')
