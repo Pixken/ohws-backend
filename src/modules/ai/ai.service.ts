@@ -46,6 +46,7 @@ export class AiService {
 
     const timeRange = await this.getTime(question);
     const ioo = (await this.ioo(question)).trim();
+    console.log(timeRange, ioo);
     if (timeRange === '失败' || ioo === '失败') {
       return '小蛋只负责记账相关的问题，其他问题请您自行解决哦 😊';
     }
@@ -74,14 +75,13 @@ export class AiService {
 
   async getTime(question: string) {
     const now = new Date();
-    const today = `今天是${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    const today = `今天是${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${now.getDay()}`;
     const systemPrompt = `
     请帮我根据今天的时间与用户的问题，给出合适的回答。
     1. 提取出用户问题里的时间，与今天的时间对比，帮我生成一个格式化的时间段，例如：2025-03-23 12:00:00 到 2025-03-23 18:00:00。
     2. 只需要关心用户问题里的时间，不要关心其他问题。
-    3. 如果日期为未来日期，请直接返回失败。
     4. 如果用户的问题里没有时间，请直接返回失败。
-    请直接返回时间段的格式化字符串或失败，不要输出其他内容。
+    请严格按照要求直接返回时间段的格式化字符串或失败，不要输出其他内容。
     `;
     const context = `${today}\n${question}`;
     return this.chat(question, `${systemPrompt}\n上下文信息：${context}`);
@@ -93,7 +93,7 @@ export class AiService {
     1. 如果用户是想查询，请直接返回查询。
     2. 如果用户是想记录，请直接返回记录。
     3. 如果用户的问题里没有时间，请直接返回失败。
-    请直接返回查询或记录或失败，不要输出其他内容。
+    请严格按照要求直接返回查询或记录或失败，不要输出其他内容。
     `;
     const context = question;
     return this.chat(question, `${systemPrompt}\n上下文信息：${context}`);
@@ -110,7 +110,7 @@ export class AiService {
       categoryId: string;
     }
     2. 如果问题以及上下文信息无法生成消费记录的 json 字符串，请直接返回失败。
-    请直接返回消费记录的 json 字符串或失败，不要输出其他内容。
+    请严格按照要求直接返回消费记录的 json 字符串或失败，不要输出其他内容。
     `;
     const context = question;
     return this.chat(question, `${systemPrompt}\n上下文信息：${context}`);
