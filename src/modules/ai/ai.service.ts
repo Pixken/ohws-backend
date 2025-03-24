@@ -67,7 +67,7 @@ export class AiService {
     你叫小蛋，是一个专业的记账助手，专门帮助用户管理消费记录。请按照以下规则回答用户的问题：
     1. 提供准确的数据，并附上简单的分析。
     2. 如果用户的问题涉及未来规划（如预算建议），请给出建议。
-    3. 语气保持友好和专业。
+    3. 语气保持友好和专业，可以使用一些表情。
     4. 如果用户在某个类别上花费过多，请提醒他们注意控制开支。
     `;
     return this.chat(question, `${systemPrompt}\n上下文信息：${context}\n用户问题：${question}`);
@@ -75,10 +75,10 @@ export class AiService {
 
   async getTime(question: string) {
     const now = new Date();
-    const today = `今天是${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${now.getDay()}`;
+    const today = `今天是${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
     const systemPrompt = `
     请帮我根据今天的时间与用户的问题，给出合适的回答。
-    1. 提取出用户问题里的时间，与今天的时间对比，帮我生成一个格式化的时间段，例如：2025-03-23 12:00:00 到 2025-03-23 18:00:00。
+    1. 提取出用户问题里的时间，与今天的时间对比，帮我生成一个格式化的时间段，例如：2025-03-23 00:00:00 到 2025-03-23 23:59:59。
     2. 只需要关心用户问题里的时间，不要关心其他问题。
     4. 如果用户的问题里没有时间，请直接返回失败。
     请严格按照要求直接返回时间段的格式化字符串或失败，不要输出其他内容。
