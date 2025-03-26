@@ -10,13 +10,15 @@ export class AiService {
 
   constructor(private readonly cashCategoryService: CashCategoryService, private readonly cashService: CashService, private readonly accountService: AccountService) {}
 
-  async chat(question: string, context: string = '', stream: boolean = false): Promise<string> {
+  async chat(question: string, context: string = '', stream: boolean = false): Promise<any> {
     try {
-      const response = await axios.post(
-        this.apiUrl,
-        {
+      
+      if (!stream) {
+        const response = await axios.post(
+          this.apiUrl,
+          {
           model: 'deepseek-ai/DeepSeek-V3',
-          stream,
+          stream: false,
           max_tokens: 512,
           temperature: 0.7,
           top_p: 0.7,
@@ -34,21 +36,46 @@ export class AiService {
             'Content-Type': 'application/json',
           },
         },
+        );
+        return response.data.choices[0].message.content.trim();
+      }
+      
+      return axios.post(
+        this.apiUrl,
+        {
+          model: 'deepseek-ai/DeepSeek-V3',
+          stream: true,
+          max_tokens: 512,
+          temperature: 0.7,
+          top_p: 0.7,
+          top_k: 50,
+          messages: [
+            { role: 'system', content: context },
+            { role: 'user', content: question },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          responseType: 'stream',  // 添加这个配置
+        },
       );
-      return response.data.choices[0].message.content.trim();
     } catch (error) {
       console.error('Error calling DeepSeek API:', error);
       throw new Error('Failed to get response from DeepSeek');
     }
   }
 
-  async ask(question: string, userId: string, time: string): Promise<string> {
-
+  async ask(question: string, userId: string, time: string, stream: boolean): Promise<any> {
+    console.log('question', question);
+    
     const timeRange = await this.getTime(question);
-    const ioo = (await this.ioo(question)).trim();
-    console.log(timeRange, ioo);
+    const ioo = await this.ioo(question)
+
     if (timeRange === '失败' || ioo === '失败') {
-      return '小蛋只负责记账相关的问题，其他问题请您自行解决哦 😊';
+      return this.chat(question, `由于用户的问题与小蛋的能力范围不符，小蛋无法回答用户的问题。\n小蛋只负责记账相关的问题，其他问题请您自行解决哦 😊`, stream);
     }
     let context = '';
     if (ioo === '查询') {
@@ -69,8 +96,10 @@ export class AiService {
     2. 如果用户的问题涉及未来规划（如预算建议），请给出建议。
     3. 语气保持友好和专业，可以使用一些表情。
     4. 如果用户在某个类别上花费过多，请提醒他们注意控制开支。
+    5. 如果用户的问题中询问了关于某些方面的消费，也请只给出该方面的消费记录。例如：吃饭就可以只给出吃饭相关的消费记录。
     `;
-    return this.chat(question, `${systemPrompt}\n上下文信息：${context}\n用户问题：${question}`);
+    
+    return this.chat(question, `${systemPrompt}\n上下文信息：${context}\n用户问题：${question}`, stream);
   }
 
   async getTime(question: string) {
