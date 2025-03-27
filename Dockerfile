@@ -16,6 +16,12 @@ RUN pnpm install
 # 复制项目文件
 COPY . .
 
+# 生成prisma客户端代码
+RUN pnpm prisma generate
+
+# 推送prisma数据库
+RUN pnpm prisma db push
+
 # 构建项目
 RUN pnpm run build
 
