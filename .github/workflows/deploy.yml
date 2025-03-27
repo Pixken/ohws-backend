@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /path/to/project
-            docker compose up -d
+            docker compose up -d --build
 
       # 重启 Nginx
       - name: 重启 Nginx

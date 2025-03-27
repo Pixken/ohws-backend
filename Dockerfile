@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:18-alpine AS builder
+FROM node:latest AS builder
 
 # 安装 pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -26,7 +26,7 @@ RUN pnpm prisma generate
 RUN pnpm build
 
 # 生产阶段
-FROM node:18-alpine AS production
+FROM node:latest AS production
 
 # 安装 pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
