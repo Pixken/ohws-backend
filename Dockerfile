@@ -2,12 +2,21 @@
 FROM node:18-alpine AS builder
 
 WORKDIR /app
+# 复制package.json和pnpm-lock.yaml
 COPY package*.json ./
+COPY pnpm-lock.yaml ./
+# 复制prisma文件
 COPY prisma ./prisma/
-RUN npm install
-RUN npx prisma generate
+# 安装pnpm
+RUN npm install -g pnpm
+# 安装依赖
+RUN pnpm install
+# 生成prisma客户端代码
+RUN pnpm prisma generate
+# 复制源代码
 COPY . .
-RUN npm run build
+# 构建应用
+RUN pnpm build
 
 # 生产阶段
 FROM node:18-alpine
