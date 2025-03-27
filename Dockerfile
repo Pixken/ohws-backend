@@ -1,53 +1,25 @@
 # 构建阶段
-FROM node:latest AS builder
+FROM node:18-alpine AS builder
 
-# 安装 pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# 设置工作目录
 WORKDIR /app
-
-# 复制 package.json 和 pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
-
-# 复制 prisma 相关文件
+COPY package*.json ./
 COPY prisma ./prisma/
-
-# 安装依赖
-RUN pnpm install --frozen-lockfile
-
-# 复制源代码
+RUN npm install
+RUN npx prisma generate
 COPY . .
-
-# 生成 Prisma Client
-RUN pnpm prisma generate
-
-# 构建应用
-RUN pnpm build
+RUN npm run build
 
 # 生产阶段
-FROM node:latest AS production
-
-# 安装 pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:18-alpine
 
 WORKDIR /app
-
-# 复制 package.json 和 pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
-
-# 复制 prisma 相关文件
-COPY prisma ./prisma/
-
-# 只安装生产依赖
-RUN pnpm install --prod --frozen-lockfile
-
-# 从构建阶段复制构建产物和生成的 Prisma Client
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/prisma ./prisma
+COPY ecosystem.config.js .
 
-# 暴露端口
-EXPOSE 3280
+ENV NODE_ENV production
+EXPOSE 3000
 
-# 启动应用
-CMD ["pnpm", "start:prod"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]

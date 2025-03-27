@@ -1,33 +1,26 @@
-services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3280:3280"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=mysql://root:password@mysql:3306/ohws?schema=public
-      - JWT_SECRET=zxdbf666
-    depends_on:
-      - mysql
-    restart: always
+version: '3.8'
 
-  mysql:
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://root:20011113XSZxsz.@db:3306/ohws
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=ohws
+      MYSQL_ROOT_PASSWORD: 20011113XSZxsz.
+      MYSQL_DATABASE: ohws
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    restart: unless-stopped
 
 volumes:
-  mysql_data: 
+  mysql_data:

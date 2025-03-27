@@ -8,6 +8,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.setGlobalPrefix('api');
-  await app.listen(process.env.PORT ?? 3280);
+  await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
