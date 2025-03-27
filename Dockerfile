@@ -10,6 +10,9 @@ WORKDIR /app
 # 复制 package.json 和 pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
 
+# 复制.env文件
+COPY .env ./
+
 # 安装依赖
 RUN pnpm install
 
