@@ -75,7 +75,7 @@ export class AiService {
     const ioo = await this.ioo(question)
 
     if (timeRange === '失败' || ioo === '失败') {
-      return this.chat(question, `由于用户的问题与小蛋的能力范围不符，小蛋无法回答用户的问题。\n小蛋只负责记账相关的问题，其他问题请您自行解决哦 😊`, stream);
+      return this.chat(question, `由于用户的问题与小蛋的能力范围不符，小蛋无法回答用户的问题。\n小蛋只负责记账相关的问题，其他问题请您自行解决哦😊`, stream);
     }
     let context = '';
     if (ioo === '查询') {
