@@ -38,7 +38,7 @@ export class AiController {
                 response.write(`data: ${encodedContent}\n\n`);
               }
             } catch (e) {
-              console.error('Error parsing chunk:', e);
+              console.error('Error parsing chunk :', e);
             }
           }
         }
