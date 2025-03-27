@@ -27,6 +27,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /path/to/project
-            docker-compose down
-            docker-compose up -d --build
-            docker exec -it app npx prisma migrate deploy
+            docker compose down
+            docker compose up -d --build
+            docker exec -it app npx prisma generate
+            docker exec -it app npx prisma db push
