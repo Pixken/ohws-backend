@@ -22,9 +22,6 @@ COPY . .
 # 生成prisma客户端代码
 RUN pnpm prisma generate
 
-# 推送prisma数据库
-RUN pnpm prisma db push
-
 # 构建项目
 RUN pnpm run build
 
@@ -32,4 +29,4 @@ RUN pnpm run build
 EXPOSE 3000
 
 # 启动命令
-CMD ["pnpm", "run", "start:prod"]
+CMD ["pm2-runtime", "ecosystem.config.js"]

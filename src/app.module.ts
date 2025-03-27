@@ -13,6 +13,7 @@ import { AiModule } from './modules/ai/ai.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
     }),
     PrismaModule, UserModule, CashModule, AuthModule, AccountModule, CashCategoryModule, AiModule
   ],
