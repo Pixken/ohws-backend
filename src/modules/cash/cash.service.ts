@@ -49,7 +49,7 @@ export class CashService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} cash`;
+    return `This action returns a #${id} cash `;
   }
 
   update(id: number, updateCashDto: UpdateCashDto) {
