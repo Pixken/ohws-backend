@@ -23,7 +23,10 @@ export class AccountService {
     return await this.prisma.account.create({
       data: {
         balance: data.balance,
+        cardNumber: data.cardNumber || null,
+        cardType: data.cardType || null,
         name: data.name,
+        updateTime: new Date(),
         users: {
           connect: { id: data.userId }
         }

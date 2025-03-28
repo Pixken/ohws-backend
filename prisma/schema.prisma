@@ -20,6 +20,9 @@ model Account {
   id      String @id @default(uuid())
   balance Float  @default(0)
   name    String
+  cardNumber String?
+  cardType String?
+  updateTime DateTime @default(now())
   cash    Cash[]
   users   User[] @relation("AccountToUser")
 }
