@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "docker:rebuild": "docker compose up --build -d",
+    "build": "pnpm prisma generate && nest build",
+    "deploy": "pnpm build && pm2 reload ecosystem.config.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",

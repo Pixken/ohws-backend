@@ -1,14 +1,17 @@
 module.exports = {
-  apps: [{
-    name: 'nest-app',
-    script: './dist/main.js',
-    instances: '2',
-    exec_mode: 'cluster',
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '500M',
-    env: {
-      NODE_ENV: 'production',
-    }
-  }]
+  apps: [
+    {
+      name: 'nestjs-app',
+      script: 'dist/main.js',
+      instances: 'max',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'production',
+        DATABASE_URL: 'mysql://zxdbf:20011113XSZxsz.@localhost:6480/ohws',
+        JWT_SECRET: 'zxdbf666',
+      },
+    },
+  ],
 };

@@ -1,4 +1,4 @@
-name: Deploy to Production 
+name: Deploy to Production
 
 on:
   push:
@@ -10,35 +10,40 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      
-      - name: Add SSH known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-      
-      - name: Copy files to server
-        run: |
-          rsync -avz --exclude 'node_modules' --exclude '.git' ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/app/
-      
-      - name: Deploy application
-        uses: appleboy/ssh-action@master
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build project
+        run: pnpm build
+        
+      - name: Upload files via SSH
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "."
+          target: "/app"
+          
+      - name: Restart application
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /app
-            docker compose down
-            docker compose build --no-cache
-            docker compose up -d
-            
-            # 配置 Nginx
-            sudo cp /app/nginx.conf /etc/nginx/conf.d/
-            sudo nginx -t && sudo systemctl reload nginx
-            
-            # 应用 Prisma 迁移
-            docker compose exec -T app pnpm prisma migrate deploy
+            pnpm install --prod --frozen-lockfile
+            pnpm prisma migrate deploy
+            pm2 reload ecosystem.config.js
