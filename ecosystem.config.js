@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'nestjs-app',
+      name: 'ohws',
       script: 'dist/main.js',
       instances: 'max',
       autorestart: true,
