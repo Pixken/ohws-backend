@@ -45,5 +45,6 @@ jobs:
           script: |
             cd /app
             pnpm install --prod --frozen-lockfile
+            pnpm prisma generate
             pnpm prisma migrate deploy
             pm2 reload ecosystem.config.js
