@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: "."
+          source: ".,!node_modules/**"
           target: "/app"
           
       - name: Restart application
