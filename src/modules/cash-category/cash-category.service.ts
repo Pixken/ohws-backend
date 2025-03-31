@@ -11,6 +11,10 @@ export class CashCategoryService {
     return 'This action adds a new cashCategory';
   }
 
+  findAllByUser(userId: string) {
+    return this.prisma.cashCategory.findMany({ where: { userId } });
+  }
+
   findAll() {
     return this.prisma.cashCategory.findMany();
   }

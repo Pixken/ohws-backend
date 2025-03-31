@@ -17,7 +17,7 @@ export class CashService {
     }
     const newBalance = type === 'income' ? account.balance + price : account.balance - price;
     await this.prisma.account.update({ where: { id: createCashDto.accountId }, data: { balance: newBalance } });
-    return await this.prisma.cash.create({ data: createCashDto.cash });
+    return await this.prisma.cash.create({ data: { ...createCashDto.cash, accountId: createCashDto.accountId, userId: createCashDto.userId }, include: { category: true, account: true } });
   }
 
   async findAllByUser(userId: string) {
@@ -33,8 +33,8 @@ export class CashService {
       where: {
         userId,
         date: {
-          gte: new Date(time.split('到')[0]),
-          lte: new Date(time.split('到')[1]),
+          gte: new Date(time[0]),
+          lte: new Date(time[1]),
         },
       },
       include: {

@@ -14,6 +14,7 @@ model User {
   password String
   cash     Cash[]
   accounts Account[] @relation("AccountToUser")
+  cashCategories CashCategory[]
 }
 
 model Account {
@@ -50,4 +51,6 @@ model CashCategory {
   name String
   type String
   cash Cash[]
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
 }

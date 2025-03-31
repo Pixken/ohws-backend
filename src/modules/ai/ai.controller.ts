@@ -57,4 +57,9 @@ export class AiController {
     // return this.aiService.ioo(body.message);
     // return this.aiService.generatePrismaQuery(body.message);
   }
+
+  @Post('generateCash')
+  async generateCash(@Body() body: { message: string }) {
+    return this.aiService.generateCash(body.message);
+  }
 }

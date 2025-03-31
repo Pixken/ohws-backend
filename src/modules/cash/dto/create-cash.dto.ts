@@ -5,5 +5,6 @@ export class CreateCashDto {
     type: string;
     categoryId: string;
   };
+  userId: string;
   accountId: string;
 }
