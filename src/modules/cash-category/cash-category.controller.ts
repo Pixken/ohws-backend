@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CashCategoryService } from './cash-category.service';
 import { CreateCashCategoryDto } from './dto/create-cash-category.dto';
 import { UpdateCashCategoryDto } from './dto/update-cash-category.dto';
@@ -13,8 +13,8 @@ export class CashCategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.cashCategoryService.findAll();
+  findAll(@Query('userId') userId: string) {
+    return this.cashCategoryService.findAllByUser(userId);
   }
 
   @Get(':id')

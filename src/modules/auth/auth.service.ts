@@ -1,9 +1,9 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
-
+import { CashCategoryService } from '../cash-category/cash-category.service';
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
@@ -11,7 +11,12 @@ export interface LoginResponse {
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService, private configService: ConfigService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+    private cashCategoryService: CashCategoryService,
+  ) {}
 
   private jwtSecret = this.configService.get<string>('JWT_SECRET');
 
@@ -67,12 +72,13 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         email,
         password: hashedPassword,
       },
     });
+    await this.cashCategoryService.createDefaults(user.id);
 
     return '注册成功';
   }
