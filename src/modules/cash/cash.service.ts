@@ -28,7 +28,7 @@ export class CashService {
     return await this.prisma.cash.findMany({ where: { accountId } });
   }
 
-  async findAllByTime(userId: string, time: string) {
+  async findAllByTime(userId: string, time: string[]) {
     return await this.prisma.cash.findMany({
       where: {
         userId,
