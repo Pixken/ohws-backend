@@ -3,14 +3,28 @@ import axios from 'axios';
 import { CashCategoryService } from '../cash-category/cash-category.service';
 import { CashService } from '../cash/cash.service';
 import { AccountService } from '../account/account.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OpenAI } from 'openai';
 @Injectable()
 export class AiService {
-  private readonly apiKey: string = 'sk-vhmdcbhonlauolbxzzoqbhoeymchotmyzghwjpavdrftnfxk';
+  private readonly apiKey: string = 'sk-0afcdf8a830d454db89eccc05de51ee5';
   private readonly apiUrl: string = 'https://api.siliconflow.cn/v1/chat/completions';
 
   private ctx: any[] = []
 
-  constructor(private readonly cashCategoryService: CashCategoryService, private readonly cashService: CashService, private readonly accountService: AccountService) { }
+  constructor(
+    private readonly cashCategoryService: CashCategoryService,
+    private readonly cashService: CashService,
+    private readonly accountService: AccountService,
+    private readonly eventEmitter: EventEmitter2
+  ) { }
+
+  onModuleInit() {
+    this.eventEmitter.on('getIcon', async (question: string) => {
+      const icon = await this.getIcon(question);
+      return icon as string;
+    });
+  }
 
   async chat(question: string, context: string = '', stream: boolean = false, config: any = {}): Promise<any> {
     try {
@@ -72,6 +86,23 @@ export class AiService {
     }
   }
 
+  async chat2(question: string, context: string = '', stream: boolean = false, config: any = {}): Promise<any> {
+    const openai = new OpenAI({
+      apiKey: this.apiKey,
+      baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    });
+    const response = await openai.chat.completions.create({
+      model: 'deepseek-v3',
+      messages: [{ role: 'user', content: question}, { role: 'system', content: context }],
+      stream: stream, 
+      ...config,
+    });
+    if (!stream) {
+      return response.choices[0].message.content.trim();
+    }
+    return response;
+  }
+
   async ask(question: string, userId: string, time: string, stream: boolean): Promise<any> {
     if (this.ctx.length > 0) {
       question = this.ctx.join('\n') + '\n' + question;
@@ -83,6 +114,7 @@ export class AiService {
     let context = '';
     if (generateCash.type === 'query') {
       const cash = await this.cashService.findAllByTime(userId, generateCash.daterange);
+      console.log(cash);
       context = `
       查询结果：
       时间范围：${generateCash.daterange}
@@ -92,7 +124,6 @@ export class AiService {
 
     if (generateCash.type === 'income' || generateCash.type === 'expense') {
       if (!generateCash.accountId || !generateCash.categoryId) {
-        console.log('fuck');
         this.ctx.push(question)
         const accounts = await this.accountService.findAccounts(userId);
         const cashCategories = await this.cashCategoryService.findAllByUser(userId);
@@ -103,8 +134,8 @@ export class AiService {
          只对选择账户和消费类别做提醒，不要输出其他内容。
         `;
       } else {
-        const cash = await this.cashService.create({ cash: { price: generateCash.price, description: generateCash.description, type: generateCash.type, categoryId: generateCash.categoryId }, userId, accountId: generateCash.accountId });
-        console.log(cash);
+        const icon = await this.getIcon(generateCash.description);
+        const cash = await this.cashService.create({ cash: { price: generateCash.price, description: generateCash.description, type: generateCash.type, categoryId: generateCash.categoryId, icon: icon.split('------')[0], color: icon.split('------')[1] }, userId, accountId: generateCash.accountId });
         context = `
         记录结果：
         时间范围：${generateCash.daterange}
@@ -121,33 +152,7 @@ export class AiService {
     5. 如果用户的问题中询问了关于某些方面的消费，也请只给出该方面的消费记录。例如：吃饭就可以只给出吃饭相关的消费记录。
     `;
 
-    return this.chat(question, `${systemPrompt}\n上下文信息：${context}\n用户问题：${question}`, stream);
-  }
-
-  async getTime(question: string) {
-    const now = new Date();
-    const today = `今天是${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
-    const systemPrompt = `
-    请帮我根据今天的时间与用户的问题，给出合适的回答。
-    1. 提取出用户问题里的时间，与今天的时间对比，帮我生成一个格式化的时间段，例如：2025-03-23 00:00:00 到 2025-03-23 23:59:59。
-    2. 只需要关心用户问题里的时间，不要关心其他问题。
-    4. 如果用户的问题里没有时间，请直接返回失败。
-    请严格按照要求直接返回时间段的格式化字符串或失败，不要输出其他内容。
-    `;
-    const context = `${today}\n${question}`;
-    return this.chat(question, `${systemPrompt}\n上下文信息：${context}`);
-  }
-
-  async ioo(question: string) {
-    const systemPrompt = `
-    请根据用户问题，判断出用户是想查询还是想记录。
-    1. 如果用户是想查询，请直接返回查询。
-    2. 如果用户是想记录，请直接返回记录。
-    3. 如果用户的问题里没有时间，请直接返回失败。
-    请严格按照要求直接返回查询或记录或失败，不要输出其他内容。
-    `;
-    const context = question;
-    return this.chat(question, `${systemPrompt}\n上下文信息：${context}`);
+    return this.chat2(question, `${systemPrompt}\n上下文信息：${context}\n用户问题：${question}`, stream);
   }
 
   async generateCash(question: string, userId?: string, time?: string) {
@@ -204,6 +209,34 @@ export class AiService {
     `;
     console.log(systemPrompt);
     const context = question;
-    return this.chat(question, `${systemPrompt}\n上下文信息：${context}`, false, { temperature: 0.1 });
+    return this.chat2(question, `${systemPrompt}\n上下文信息：${context}`, false, { temperature: 0.1 });
+  }
+
+
+  async getIcon(question: string) {
+    const systemPrompt = `
+    你是一个专业的icon设计师，请根据用户的问题，选择以下icon。
+    "radix-icons:hobby-knife",
+    "material-symbols:work",
+    "icon-park-twotone:sport",
+    "solar:gamepad-bold",
+    "ri:funds-box-fill",
+    "uil:social-distancing",
+    "lineicons:travel",
+    "ic:baseline-emoji-emotions",
+    "streamline:natrue-ecology-recycle-1-sign-environment-protect-save-arrows",
+    "material-symbols:book-ribbon",
+    "mingcute:hospital-fill",
+    "material-symbols:directions-car-rounded",
+    "map:clothing-store",
+    "mingcute:cash-fill",
+    "ri:refund-fill",
+    "zondicons:location-food"
+    接着挑选一个合适的图标颜色，
+    最后返回一个字符串，格式如下：
+    icon------color
+    请严格按照要求直接返回字符串，不要输出其他内容,不要markdown格式。
+    `
+    return this.chat2(question, systemPrompt, false, { temperature: 0.1 })
   }
 }

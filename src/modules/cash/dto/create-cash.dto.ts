@@ -4,6 +4,8 @@ export class CreateCashDto {
     description: string;
     type: string;
     categoryId: string;
+    icon?: string;
+    color?: string;
   };
   userId: string;
   accountId: string;

@@ -19,15 +19,15 @@ export class CashCategoryService {
   createDefaults(userId: string) {
     return this.prisma.cashCategory.createMany({
       data: [
-        { name: '餐饮', userId, type: 'expense' },
-        { name: '交通', userId, type: 'expense' },
-        { name: '购物', userId, type: 'expense' },
-        { name: '娱乐', userId, type: 'expense' },
-        { name: '其他', userId, type: 'expense' },
-        { name: '工资', userId, type: 'income' },
-        { name: '奖金', userId, type: 'income' },
-        { name: '投资', userId, type: 'income' },
-        { name: '其他', userId, type: 'income' },
+        { name: '餐饮', userId, type: 'expense', icon: 'zondicons:location-food' },
+        { name: '交通', userId, type: 'expense', icon: 'material-symbols:directions-car-rounded' },
+        { name: '购物', userId, type: 'expense', icon: 'map:clothing-store' },
+        { name: '娱乐', userId, type: 'expense', icon: 'solar:gamepad-bold' },
+        { name: '其他', userId, type: 'expense', icon: 'basil:other-1-outline' },
+        { name: '工资', userId, type: 'income', icon: 'mingcute:cash-fill' },
+        { name: '奖金', userId, type: 'income', icon: 'material-symbols:money-bag' },
+        { name: '投资', userId, type: 'income', icon: 'material-symbols:work' },
+        { name: '其他', userId, type: 'income', icon: 'basil:other-1-outline' },
       ],
     });
   }

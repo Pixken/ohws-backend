@@ -20,33 +20,11 @@ export class AiController {
       response.setHeader('Connection', 'keep-alive');
       console.log(stream, 'stream12908309128310983290');
       
-      stream.data.on('data', (chunk: Buffer) => {
-        const lines = chunk.toString().split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') {
-              response.write('data: [DONE]\n\n');
-              return;
-            }
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices[0].delta.content;
-              if (content) {
-                // 将换行符转换为特殊标记
-                const encodedContent = content.replace(/\n/g, '\\n');
-                response.write(`data: ${encodedContent}\n\n`);
-              }
-            } catch (e) {
-              console.error('Error parsing chunk:', e);
-            }
-          }
-        }
-      });
-
-      stream.data.on('end', () => {
-        response.end();
-      });
+      for await (const chunk of stream.iterator()) {
+        response.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      }
+      
+      response.end();
     } catch (error) {
       console.error('Error in chat:', error);
       response.status(500).send('Internal Server Error');
@@ -61,5 +39,10 @@ export class AiController {
   @Post('generateCash')
   async generateCash(@Body() body: { message: string }) {
     return this.aiService.generateCash(body.message);
+  }
+
+  @Post('getIcon')
+  async getIcon(@Body() body: { message: string }) {
+    return this.aiService.getIcon(body.message);
   }
 }

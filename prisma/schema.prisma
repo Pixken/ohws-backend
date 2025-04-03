@@ -36,6 +36,8 @@ model Cash {
   userId      String?
   categoryId  String?
   description String
+  icon        String?
+  color       String?
   accountId   String?
   account     Account?      @relation(fields: [accountId], references: [id])
   category    CashCategory? @relation(fields: [categoryId], references: [id])
@@ -50,6 +52,7 @@ model CashCategory {
   id   String @id @default(uuid())
   name String
   type String
+  icon String?
   cash Cash[]
   userId String?
   user   User?   @relation(fields: [userId], references: [id])
