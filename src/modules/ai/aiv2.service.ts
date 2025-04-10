@@ -147,7 +147,7 @@ export class AiV2Service {
   async chat(userInput: string, userId: string) {
     await this.init(userId);
     const openai = new OpenAI({
-      apiKey: 'sk-506a08a471ad4298a5d43d839709b837',
+      apiKey: process.env.DEEPSEEK_API_KEY,
       baseURL: "https://api.deepseek.com"
     });
     const response = await openai.chat.completions.create({

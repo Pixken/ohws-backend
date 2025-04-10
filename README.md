@@ -1,99 +1,127 @@
+# OHWS-Backend 记账助手后端系统
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 项目简介
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+OHWS-Backend 是一个基于 NestJS 框架开发的记账助手系统后端，提供完整的个人记账功能和AI智能助手服务。系统支持用户管理、账户管理、消费记录、收入记录和AI智能交互等功能，旨在帮助用户更好地管理个人财务。
 
-## Description
+## 主要功能
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **用户系统**: 注册、登录、JWT身份认证
+- **账户管理**: 创建多个资金账户，管理余额
+- **消费分类**: 自定义消费类别，包含图标与颜色
+- **记账功能**: 记录收入和支出，按照日期、账户和类别统计
+- **AI助手**: 
+  - 基于大语言模型的智能记账助手
+  - 自然语言交互式记账（如"今天吃饭花了50元"）
+  - 智能图标推荐
+  - 消费数据分析和建议
+- **工具调用**: AI系统支持工具调用功能，可直接通过对话执行账务操作
 
-## Project setup
+## 技术栈
+
+- **后端框架**: NestJS
+- **数据库**: MySQL
+- **ORM**: Prisma
+- **身份认证**: JWT, Passport
+- **AI接口**: DeepSeek AI API
+- **部署**: PM2, Nginx
+
+## 安装与运行
+
+### 环境要求
+
+- Node.js >= 16.x
+- MySQL >= 5.7
+- pnpm >= 8.x
+
+### 安装依赖
 
 ```bash
 $ pnpm install
 ```
 
-## Compile and run the project
+### 配置数据库
+
+1. 创建一个MySQL数据库
+2. 复制`.env.example`为`.env.local`并设置数据库连接信息
+   ```
+   DATABASE_URL="mysql://username:password@localhost:3306/database_name"
+   JWT_SECRET="your-secret-key"
+   ```
+
+### 数据库迁移
 
 ```bash
-# development
-$ pnpm run start
+# 生成Prisma客户端
+$ pnpm pp
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# 数据库迁移
+$ pnpm prisma:migrate
 ```
 
-## Run tests
+### 运行项目
 
 ```bash
-# unit tests
-$ pnpm run test
+# 开发模式
+$ pnpm dev
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# 生产模式
+$ pnpm build
+$ pnpm start:prod
 ```
 
-## Deployment
+## API接口
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### 认证相关
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/login` - 用户登录
+
+### 用户相关
+
+- `GET /api/user/:id` - 获取用户信息
+- `GET /api/user` - 获取所有用户
+
+### 账户相关
+
+- `POST /api/account` - 创建账户
+- `POST /api/account/:id` - 添加账户
+- `GET /api/account/:userId` - 获取用户的所有账户
+
+### 消费类别
+
+- `POST /api/cash-category` - 创建消费类别
+- `GET /api/cash-category` - 获取所有消费类别
+- `GET /api/cash-category/:id` - 获取单个消费类别
+
+### 消费记录
+
+- `POST /api/cash` - 创建消费记录
+- `GET /api/cash/:userId` - 获取用户所有消费记录
+- `GET /api/cash/time/:userId` - 获取指定时间范围的消费记录
+
+### AI助手接口
+
+- `POST /api/ai/chat` - 与AI助手对话 (流式响应)
+- `POST /api/ai/chat-v2` - 使用工具调用的增强版AI助手 (流式响应)
+- `POST /api/ai/generateCash` - 生成消费记录
+- `POST /api/ai/getIcon` - 获取图标推荐
+
+## 部署说明
+
+项目使用PM2进行部署管理，Nginx进行反向代理。
 
 ```bash
-$ pnpm install -g mau
-$ mau deploy
+# 部署项目
+$ pnpm deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Nginx配置示例见项目根目录的`nginx.conf`文件。
 
-## Resources
+## 许可证
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+本项目使用 [MIT 许可证](LICENSE)
