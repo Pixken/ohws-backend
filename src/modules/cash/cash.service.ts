@@ -30,9 +30,7 @@ export class CashService {
     return await this.prisma.cash.findMany({ where: { accountId } });
   }
 
-  async findAllByTime(userId: string, time: string[]) {
-    console.log(new Date(time[0]));
-    
+  async findAllByTime(userId: string, time: string[], accountId?: string, categoryId?: string, type?: string) {
     return await this.prisma.cash.findMany({
       where: {
         userId,
@@ -40,6 +38,9 @@ export class CashService {
           gte: dayjs(time[0]).startOf('day').toDate(),
           lte: dayjs(time[1]).endOf('day').toDate(),
         },
+        accountId,
+        categoryId,
+        type,
       },
       include: {
         category: true,
