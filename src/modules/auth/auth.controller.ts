@@ -12,7 +12,7 @@ export class AuthController {
   @Public()
   @HttpCode(200)
   async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
-    return this.authService.login(loginDto.email, loginDto.password);
+    return this.authService.login(loginDto.username, loginDto.password);
   }
 
   @Post('refresh')
@@ -25,7 +25,7 @@ export class AuthController {
   @Post('register')
   @Public()
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto.email, registerDto.password);
+    return this.authService.register(registerDto.email, registerDto.password, registerDto.username);
   }
 
   @Get('profile')

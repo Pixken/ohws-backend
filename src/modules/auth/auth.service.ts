@@ -36,10 +36,10 @@ export class AuthService {
     });
   }
 
-  async login(email: string, password: string): Promise<LoginResponse> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+  async login(username: string, password: string): Promise<LoginResponse> {
+    const user = await this.prisma.user.findUnique({ where: { username } });
     if (!user) {
-      throw new HttpException(`用户不存在: ${email}`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(`用户不存在: ${username}`, HttpStatus.BAD_REQUEST);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -65,10 +65,10 @@ export class AuthService {
     };
   }
 
-  async register(email: string, password: string): Promise<string> {
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+  async register(email: string, password: string, username: string): Promise<string> {
+    const existingUser = await this.prisma.user.findUnique({ where: { username } });
     if (existingUser) {
-      throw new HttpException('邮箱已存在', HttpStatus.BAD_REQUEST);
+      throw new HttpException('用户已存在', HttpStatus.BAD_REQUEST);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -76,6 +76,7 @@ export class AuthService {
       data: {
         email,
         password: hashedPassword,
+        username
       },
     });
     await this.cashCategoryService.createDefaults(user.id);

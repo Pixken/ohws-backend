@@ -158,7 +158,7 @@ export class AiV2Service {
       tool_choice: 'auto',
     });
     const { message } = response.choices[0];
-    // 第二步：检查模型是否想要调用函数
+    // 检查模型是否想要调用函数
     if (message.tool_calls) {
       const toolResponses = [];
 
@@ -187,7 +187,7 @@ export class AiV2Service {
         }
       }
 
-      // 第三步：将函数响应发送回模型获取最终回答
+      // 将函数响应发送回模型获取最终回答
       const secondResponse = await openai.chat.completions.create({
         model: "deepseek-chat",
         messages: [

@@ -16,8 +16,18 @@ export class CashService {
     if (!account) {
       throw new NotFoundException('Account not found');
     }
+    console.log( account.balance);
+    
     const newBalance = type === 'income' ? account.balance + price : account.balance - price;
-    await this.prisma.account.update({ where: { id: createCashDto.accountId }, data: { balance: newBalance } });
+    // 使用事务来确保更新操作被正确捕获
+    const result = await this.prisma.$transaction(async (tx) => {
+      const updatedAccount = await tx.account.update({
+        where: { id: createCashDto.accountId },
+        data: { balance: newBalance }
+      });
+      console.log('事务中更新结果:', updatedAccount);
+      return updatedAccount;
+    });
     const iconArr = await this.eventEmitter.emitAsync('getIcon', createCashDto.cash.description);
     return await this.prisma.cash.create({ data: { ...createCashDto.cash, accountId: createCashDto.accountId, userId: createCashDto.userId, icon: iconArr[0].split('------')[0], color: iconArr[0].split('------')[1] }, include: { category: true, account: true } });
   }

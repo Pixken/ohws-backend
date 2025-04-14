@@ -9,8 +9,8 @@ datasource db {
 
 model User {
   id       String    @id @default(uuid())
-  name     String?
-  email    String    @unique
+  username     String @unique
+  email    String    
   password String
   cash     Cash[]
   accounts Account[] @relation("AccountToUser")
