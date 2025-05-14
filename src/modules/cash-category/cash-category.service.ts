@@ -2,13 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { CreateCashCategoryDto } from './dto/create-cash-category.dto';
 import { UpdateCashCategoryDto } from './dto/update-cash-category.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { CategoryType } from '@prisma/client';
 
 @Injectable()
 export class CashCategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createCashCategoryDto: CreateCashCategoryDto) {
-    return 'This action adds a new cashCategory';
+    // 转换类型字符串为枚举值
+    const categoryType = createCashCategoryDto.type as CategoryType;
+    
+    return this.prisma.category.create({
+      data: {
+        name: createCashCategoryDto.name,
+        type: categoryType,
+        icon: createCashCategoryDto.icon,
+        color: createCashCategoryDto.color,
+        userId: createCashCategoryDto.userId,
+        parentId: createCashCategoryDto.parentId ? createCashCategoryDto.parentId.toString() : null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    });
   }
 
   /**
@@ -16,39 +31,55 @@ export class CashCategoryService {
    * @param userId 用户ID
    * @returns 创建的消费类别
    */
-  createDefaults(userId: string) {
-    return this.prisma.cashCategory.createMany({
+  async createDefaults(userId: string) {
+    return await this.prisma.category.createMany({
       data: [
-        { name: '餐饮', userId, type: 'expense', icon: 'zondicons:location-food' },
-        { name: '交通', userId, type: 'expense', icon: 'material-symbols:directions-car-rounded' },
-        { name: '购物', userId, type: 'expense', icon: 'map:clothing-store' },
-        { name: '娱乐', userId, type: 'expense', icon: 'solar:gamepad-bold' },
-        { name: '其他', userId, type: 'expense', icon: 'basil:other-1-outline' },
-        { name: '工资', userId, type: 'income', icon: 'mingcute:cash-fill' },
-        { name: '奖金', userId, type: 'income', icon: 'material-symbols:money-bag' },
-        { name: '投资', userId, type: 'income', icon: 'material-symbols:work' },
-        { name: '其他', userId, type: 'income', icon: 'basil:other-1-outline' },
+        { name: '餐饮', userId, type: CategoryType.expense, icon: 'zondicons:location-food' },
+        { name: '交通', userId, type: CategoryType.expense, icon: 'material-symbols:directions-car-rounded' },
+        { name: '购物', userId, type: CategoryType.expense, icon: 'map:clothing-store' },
+        { name: '娱乐', userId, type: CategoryType.expense, icon: 'solar:gamepad-bold' },
+        { name: '其他', userId, type: CategoryType.expense, icon: 'basil:other-1-outline' },
+        { name: '工资', userId, type: CategoryType.income, icon: 'mingcute:cash-fill' },
+        { name: '奖金', userId, type: CategoryType.income, icon: 'material-symbols:money-bag' },
+        { name: '投资', userId, type: CategoryType.income, icon: 'material-symbols:work' },
+        { name: '其他', userId, type: CategoryType.income, icon: 'basil:other-1-outline' },
       ],
     });
   }
 
   findAllByUser(userId: string) {
-    return this.prisma.cashCategory.findMany({ where: { userId } });
+    return this.prisma.category.findMany({ where: { userId } });
   }
 
   findAll() {
-    return this.prisma.cashCategory.findMany();
+    return this.prisma.category.findMany();
   }
 
   findOne(id: string) {
-    return this.prisma.cashCategory.findUnique({ where: { id } });
+    // 将字符串ID转换为数字
+    const categoryId = parseInt(id);
+    return this.prisma.category.findUnique({ where: { id: categoryId.toString() } });
   }
 
   update(id: number, updateCashCategoryDto: UpdateCashCategoryDto) {
-    return `This action updates a #${id} cashCategory`;
+    // 转换类型字符串为枚举值(如果提供了类型)
+    const updateData: any = { ...updateCashCategoryDto, updatedAt: new Date() };
+    
+    if (updateCashCategoryDto.type) {
+      updateData.type = updateCashCategoryDto.type as CategoryType;
+    }
+    
+    if (updateCashCategoryDto.parentId) {
+      updateData.parentId = parseInt(updateCashCategoryDto.parentId);
+    }
+    
+    return this.prisma.category.update({
+      where: { id: id.toString() },
+      data: updateData
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} cashCategory`;
+    return this.prisma.category.delete({ where: { id: id.toString() } });
   }
 }

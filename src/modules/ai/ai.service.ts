@@ -5,6 +5,7 @@ import { CashService } from '../cash/cash.service';
 import { AccountService } from '../account/account.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OpenAI } from 'openai';
+import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class AiService {
   private readonly apiKey: string = 'sk-0afcdf8a830d454db89eccc05de51ee5';
@@ -16,7 +17,8 @@ export class AiService {
     private readonly cashCategoryService: CashCategoryService,
     private readonly cashService: CashService,
     private readonly accountService: AccountService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    private readonly prisma: PrismaService
   ) { }
 
   onModuleInit() {
@@ -118,14 +120,17 @@ export class AiService {
       context = `
       查询结果：
       时间范围：${generateCash.daterange}
-      消费记录：${cash.map(item => `${item.category.name} ${item.price} ${item.account.name}`).join('\n')}
+      消费记录：${cash.map(async (item) => {
+        // Load category and account details
+        return `${item.categoryId ? (await this.prisma.category.findUnique({ where: { id: item.categoryId } }))?.name : 'Unknown Category'} ${item.amount} ${item.accountId ? (await this.prisma.account.findUnique({ where: { id: item.accountId } }))?.name : 'Unknown Account'}`;
+      }).join('\n')}
       `;
     }
 
     if (generateCash.type === 'income' || generateCash.type === 'expense') {
       if (!generateCash.accountId || !generateCash.categoryId) {
         this.ctx.push(question)
-        const accounts = await this.accountService.findAccounts(userId);
+        const accounts = await this.accountService.getUserAccounts(userId);
         const cashCategories = await this.cashCategoryService.findAllByUser(userId);
         context = `
          用户有以下账户：${accounts.map(item => `${item.name} accountId：${item.id}`).join('\n')}。
@@ -139,7 +144,7 @@ export class AiService {
         context = `
         记录结果：
         时间范围：${generateCash.daterange}
-        消费记录：${cash.category.name} ${cash.price} ${cash.account.name}
+        消费记录：${(await this.prisma.category.findUnique({ where: { id: cash.categoryId } }))?.name} ${cash.amount} ${(await this.prisma.account.findUnique({ where: { id: cash.accountId } }))?.name}
         `;
       }
     }
@@ -157,7 +162,7 @@ export class AiService {
 
   async generateCash(question: string, userId?: string, time?: string) {
     const date = new Date();
-    const accounts = await this.accountService.findAccounts(userId);
+    const accounts = await this.accountService.getUserAccounts(userId);
     const cashCategories = await this.cashCategoryService.findAllByUser(userId);
     console.log(accounts, cashCategories);
     const systemPrompt = `

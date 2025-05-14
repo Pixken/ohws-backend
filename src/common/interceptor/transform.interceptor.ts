@@ -5,9 +5,8 @@ import { Request, Response } from 'express';
 
 export interface ResponseType<T> {
   data: T;
-  code: number;
-  message: string;
-  success: boolean;
+  code: number | string;
+  info: string;
 }
 
 @Injectable()
@@ -23,9 +22,8 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ResponseType<
     return next.handle().pipe(
       map((data) => ({
         data,
-        code: 200, // 默认成功状态码
-        message: '操作成功', // 默认成功消息
-        success: true,
+        code: '0000', // 默认成功状态码
+        info: '操作成功', // 默认成功消息
       })),
     );
   }

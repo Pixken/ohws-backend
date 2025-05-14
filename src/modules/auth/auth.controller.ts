@@ -1,34 +1,45 @@
 import { Body, Controller, Get, HttpCode, Post, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { LoginResponse } from './auth.service';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { Public } from 'src/common/decorator/custom.decorator';
-@Controller('auth')
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+
+@ApiTags('Authentication')
+@Controller('identity')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @Public()
   @HttpCode(200)
-  async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
-    return this.authService.login(loginDto.username, loginDto.password);
+  @ApiOperation({ summary: 'Login user' })
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(
+      loginDto.username, 
+      loginDto.password,
+      loginDto.captchaUuid,
+      loginDto.captchaCode
+    );
   }
 
   @Post('refresh')
   @Public()
   @HttpCode(200)
-  async refreshToken(@Body('refreshToken') refreshToken: string): Promise<LoginResponse> {
+  @ApiOperation({ summary: 'Refresh token' })
+  async refreshToken(@Body('refreshToken') refreshToken: string) {
     return this.authService.refreshToken(refreshToken);
   }
 
   @Post('register')
   @Public()
-  async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto.email, registerDto.password, registerDto.username);
+  @ApiOperation({ summary: 'Register a new user' })
+  async register(@Body() registerDto: RegisterUserDto) {
+    return this.authService.register(registerDto);
   }
 
   @Get('profile')
+  @ApiOperation({ summary: 'Get user profile' })
   getProfile(@Request() req) {
     return req.user;
   }

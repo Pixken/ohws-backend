@@ -10,7 +10,7 @@ export class AiV2Service {
   private tools: any[] = []
 
   async init(userId: string) {
-    const accounts = await this.accountService.findAccounts(userId);
+    const accounts = await this.accountService.getUserAccounts(userId);
     const cashCategories = await this.cashCategoryService.findAllByUser(userId);
     this.tools = [
       {
@@ -208,5 +208,10 @@ export class AiV2Service {
     return message.content;
   }
 
-
+  async generateCash(question: string, userId?: string, time?: string) {
+    const date = new Date();
+    const accounts = await this.accountService.getUserAccounts(userId);
+    const cashCategories = await this.cashCategoryService.findAllByUser(userId);
+    // ... existing code ...
+  }
 }

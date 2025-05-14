@@ -1,25 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, ExtractJwt } from 'passport-jwt';
-import { PrismaService } from '../prisma/prisma.service';
-import { ConfigService } from '@nestjs/config';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { jwtConstants } from './constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private prisma: PrismaService, private configService: ConfigService) {
-    const jwtSecret = configService.get<string>('JWT_SECRET');
+  constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtSecret,
+      secretOrKey: jwtConstants.secret,
     });
   }
 
   async validate(payload: any) {
-    const user = await this.prisma.user.findUnique({ where: { id: payload.userId } });
-    if (!user) {
-      throw new Error('Invalid token');
+    // Verify the JWT payload contains a user ID
+    if (!payload.userId) {
+      throw new UnauthorizedException('Invalid token');
     }
-    return user;
+
+    const user = await this.prisma.sysUser.findUnique({ where: { id: payload.userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Check if user account is enabled
+    if (user.enabled === false) {
+      throw new UnauthorizedException('Account is disabled');
+    }
+
+    return { userId: payload.userId, username: payload.username };
   }
 }
